@@ -117,7 +117,7 @@ function handlePosition(pos){
   if (typeof pos.coords.speed === "number" && pos.coords.speed >= 0) {
     kmh = toKmh(pos.coords.speed);
   }
-  smoothSpeed = smoothSpeed * 0.8 + kmh * 0.2;
+  smoothSpeed = smoothSpeed * 0.6 + kmh * 0.4;
   updateGauge(smoothSpeed);
   setStatus("GPS aktiv");
 }
