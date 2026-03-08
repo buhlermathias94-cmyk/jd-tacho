@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#122716" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="JD Tacho" />
+  <title>John Deere GPS Tacho</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{
+      --yellow:#ffde00;
+      --bg1:#0d1b0f;
+      --bg2:#122716;
+      --text:#f4f7f0;
+      --muted:#c8d2c3;
+      --warn:#ffd166;
+      --error:#ff6b6b;
+    }
+    *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+    html,body{
+      margin:0;height:100%;
+      font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+      background:radial-gradient(circle at top, rgba(109,179,63,.15), transparent 35%),linear-gradient(180deg,var(--bg2),var(--bg1));
+      color:var(--text);
+      overflow:hidden;
+    }
+    body{display:flex;align-items:center;justify-content:center}
+    .app{width:100%;max-width:480px;padding:20px;text-align:center}
+    .brand{font-weight:800;font-size:1.5rem;color:var(--yellow);margin-bottom:10px}
+    .gauge{
+      position:relative;width:min(86vw,340px);height:min(86vw,340px);margin:auto;
+      border-radius:50%;background:radial-gradient(circle,#1a2d1d 0%,#050805 100%);
+      border:10px solid #0e170f;box-shadow:0 10px 28px rgba(0,0,0,.35), inset 0 0 24px rgba(0,0,0,.45);
+    }
+    .tick-label{
+      position:absolute;left:50%;top:50%;width:30px;margin-left:-15px;text-align:center;
+      font-weight:700;font-size:.9rem;text-shadow:0 1px 3px rgba(0,0,0,.5)
+    }
+    .needle{
+      position:absolute;left:50%;top:50%;width:6px;height:110px;margin-left:-3px;margin-top:-110px;
+      background:linear-gradient(180deg,var(--yellow),#b33d2f);
+      clip-path:polygon(50% 0%,100% 100%,0% 100%);
+      transform-origin:50% 100%;transform:rotate(-130deg);transition:transform .35s ease-out;
+      filter:drop-shadow(0 0 5px rgba(255,222,0,.25));
+    }
+    .center{
+      position:absolute;left:50%;top:72%;transform:translate(-50%,-50%);
+      font-size:3rem;font-weight:900;color:var(--yellow);line-height:1.05
+    }
+    .unit{font-size:1rem;color:var(--muted)}
+    .status{margin-top:15px;font-size:.92rem;color:var(--muted);min-height:1.3em}
+    .warn{color:var(--warn)}
+    .error{color:var(--error)}
+    .hint{margin-top:10px;font-size:.8rem;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="brand">John Deere</div>
+    <div class="gauge" id="gauge">
+      <div id="needle" class="needle"></div>
+      <div class="center" id="speed">0<br><span class="unit">km/h</span></div>
+    </div>
+    <div class="status" id="status">GPS wird initialisiert...</div>
+    <div class="hint" id="installHint" hidden>Im Browser-Menü kannst du diese Seite zum Startbildschirm hinzufügen.</div>
+  </div>
+
+<script>
+const MAX_KMH = 50;
+const START_ANGLE = -130;
+const END_ANGLE = 130;
+let smoothSpeed = 0;
+let wakeLock = null;
+
+const needle = document.getElementById("needle");
+const speedEl = document.getElementById("speed");
+const statusEl = document.getElementById("status");
+const installHintEl = document.getElementById("installHint");
+
+function buildScale(){
+  const gauge = document.getElementById("gauge");
+  for(let i=0;i<=50;i+=5){
+    const angle = START_ANGLE + (i / MAX_KMH) * (END_ANGLE - START_ANGLE);
+    const label = document.createElement("div");
+    label.className = "tick-label";
+    const r = 120;
+    const rad = angle * Math.PI / 180;
+    const x = Math.sin(rad) * r;
+    const y = -Math.cos(rad) * r;
+    label.style.transform = `translate(${x}px,${y}px)`;
+    label.textContent = i;
+    gauge.appendChild(label);
+  }
+}
+buildScale();
+
+function setStatus(text, cls=''){
+  statusEl.textContent = text;
+  statusEl.className = 'status ' + cls;
+}
+
+function toKmh(ms){ return Math.max(0, ms * 3.6); }
+
+function updateGauge(kmh){
+  const shown = Math.min(MAX_KMH, Math.max(0, kmh));
+  const angle = START_ANGLE + (shown / MAX_KMH) * (END_ANGLE - START_ANGLE);
+  needle.style.transform = `rotate(${angle}deg)`;
+  speedEl.innerHTML = Math.round(shown) + "<br><span class='unit'>km/h</span>";
+}
+
+function handlePosition(pos){
+  let kmh = 0;
+  if (typeof pos.coords.speed === "number" && pos.coords.speed >= 0) {
+    kmh = toKmh(pos.coords.speed);
+  }
+  smoothSpeed = smoothSpeed * 0.8 + kmh * 0.2;
+  updateGauge(smoothSpeed);
+  setStatus("GPS aktiv");
+}
+
+function handleError(err){
+  if (err && err.code === 1) setStatus("Standortzugriff abgelehnt", "error");
+  else setStatus("GPS nicht verfügbar", "error");
+}
+
+function startGps(){
+  if (!("geolocation" in navigator)) {
+    setStatus("Geolocation nicht unterstützt", "error");
+    return;
+  }
+  navigator.geolocation.watchPosition(
+    handlePosition,
+    handleError,
+    { enableHighAccuracy:true, maximumAge:1000, timeout:10000 }
+  );
+}
+
+async function enableWakeLock(){
+  if ('wakeLock' in navigator) {
+    try { wakeLock = await navigator.wakeLock.request('screen'); }
+    catch(e) {}
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") enableWakeLock();
+});
+
+window.addEventListener("load", () => {
+  startGps();
+  enableWakeLock();
+  if (window.matchMedia('(display-mode: browser)').matches) {
+    installHintEl.hidden = false;
+  }
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+}
+</script>
+</body>
+</html>

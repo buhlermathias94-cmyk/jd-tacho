@@ -1,0 +1,25 @@
+{
+  "name": "John Deere GPS Tacho",
+  "short_name": "JD Tacho",
+  "description": "GPS-Tacho bis 50 km/h für Android",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#122716",
+  "theme_color": "#122716",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
