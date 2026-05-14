@@ -2,165 +2,645 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#122716" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="JD Tacho" />
-  <title>John Deere GPS Tacho</title>
-  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPS Tacho John Deere Style</title>
   <style>
-    :root{
-      --yellow:#ffde00;
-      --bg1:#0d1b0f;
-      --bg2:#122716;
-      --text:#f4f7f0;
-      --muted:#c8d2c3;
-      --warn:#ffd166;
-      --error:#ff6b6b;
+    :root {
+      --bg1: #0d1b0f;
+      --bg2: #122716;
+      --panel: rgba(12, 20, 12, 0.82);
+      --ring: #1f3b21;
+      --green: #367c2b;
+      --green-bright: #6db33f;
+      --yellow: #ffde00;
+      --text: #f4f7f0;
+      --muted: #c8d2c3;
+      --danger: #ff6b6b;
+      --warn: #ffd166;
     }
-    *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-    html,body{
-      margin:0;height:100%;
-      font-family:system-ui,-apple-system,Segoe UI,sans-serif;
-      background:radial-gradient(circle at top, rgba(109,179,63,.15), transparent 35%),linear-gradient(180deg,var(--bg2),var(--bg1));
-      color:var(--text);
-      overflow:hidden;
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(109, 179, 63, 0.16), transparent 35%),
+        linear-gradient(180deg, var(--bg2), var(--bg1));
+      color: var(--text);
     }
-    body{display:flex;align-items:center;justify-content:center}
-    .app{width:100%;max-width:480px;padding:20px;text-align:center}
-    .brand{font-weight:800;font-size:1.5rem;color:var(--yellow);margin-bottom:10px}
-    .gauge{
-      position:relative;width:min(86vw,340px);height:min(86vw,340px);margin:auto;
-      border-radius:50%;background:radial-gradient(circle,#1a2d1d 0%,#050805 100%);
-      border:10px solid #0e170f;box-shadow:0 10px 28px rgba(0,0,0,.35), inset 0 0 24px rgba(0,0,0,.45);
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      overflow: hidden;
     }
-    .tick-label{
-      position:absolute;left:50%;top:50%;width:30px;margin-left:-15px;text-align:center;
-      font-weight:700;font-size:.9rem;text-shadow:0 1px 3px rgba(0,0,0,.5)
+
+    .bg-logo {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0.11;
+      transform: scale(1.15);
     }
-    .needle{
-      position:absolute;left:50%;top:50%;width:6px;height:110px;margin-left:-3px;margin-top:-110px;
-      background:linear-gradient(180deg,var(--yellow),#b33d2f);
-      clip-path:polygon(50% 0%,100% 100%,0% 100%);
-      transform-origin:50% 100%;transform:rotate(-130deg);transition:transform .35s ease-out;
-      filter:drop-shadow(0 0 5px rgba(255,222,0,.25));
+
+    .bg-logo svg {
+      width: min(92vw, 680px);
+      height: auto;
+      filter: drop-shadow(0 0 20px rgba(255, 222, 0, 0.05));
     }
-    .center{
-      position:absolute;left:50%;top:72%;transform:translate(-50%,-50%);
-      font-size:3rem;font-weight:900;color:var(--yellow);line-height:1.05
+
+    .app {
+      width: min(94vw, 430px);
+      background: linear-gradient(180deg, rgba(14, 24, 15, 0.96), rgba(7, 12, 8, 0.96));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 20px 18px 18px;
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 18px 50px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    .unit{font-size:1rem;color:var(--muted)}
-    .status{margin-top:15px;font-size:.92rem;color:var(--muted);min-height:1.3em}
-    .warn{color:var(--warn)}
-    .error{color:var(--error)}
-    .hint{margin-top:10px;font-size:.8rem;color:var(--muted)}
+
+    .brand {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      background: linear-gradient(180deg, #497f2e, #2d5e21);
+      color: var(--yellow);
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 222, 0, 0.28);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    
+    .gauge-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 12px 0 18px;
+    }
+
+    .gauge {
+      position: relative;
+      width: min(82vw, 360px);
+      height: min(82vw, 360px);
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 48%, #1a2d1d 0%, #0b130c 62%, #050805 100%);
+      border: 10px solid #0e170f;
+      box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.04),
+        inset 0 0 30px rgba(0,0,0,0.55),
+        0 10px 32px rgba(0,0,0,0.4);
+    }
+
+    .gauge::before {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 222, 0, 0.14);
+    }
+
+    .ticks {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+    }
+
+    .tick-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 34px;
+      margin-left: -17px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .needle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 6px;
+      height: 122px;
+      margin-left: -3px;
+      margin-top: -118px;
+      background: linear-gradient(180deg, var(--yellow), #f5f5f5 45%, #b33d2f 100%);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      transform-origin: 50% calc(100% - 4px);
+      transform: rotate(-130deg);
+      filter: drop-shadow(0 0 6px rgba(255, 222, 0, 0.28));
+      transition: transform 0.35s ease-out;
+    }
+
+    .needle-cap {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 26px;
+      height: 26px;
+      margin-left: -13px;
+      margin-top: -13px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #6b745f, #1b211a 68%, #0b0f0b 100%);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.22);
+    }
+
+    .center-readout {
+      position: absolute;
+      left: 50%;
+      top: 72%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 60%;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0;
+    }
+
+        .center-speed {
+      font-size: clamp(2.6rem, 10vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--yellow);
+      text-shadow: 0 0 12px rgba(255, 222, 0, 0.15);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .center-unit {
+      margin-top: 4px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .max-note {
+      text-align: center;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .status {
+      margin: 18px 0 14px;
+      text-align: center;
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .warn-button {
+      display: block;
+      margin: 10px auto 8px;
+      padding: 12px 18px;
+      border: 2px solid var(--yellow);
+      border-radius: 999px;
+      background: rgba(255, 222, 0, 0.12);
+      color: var(--yellow);
+      font-weight: 900;
+      font-size: 1rem;
+    }
+
+    .warn-button.active {
+      background: var(--yellow);
+      color: #122716;
+    }
+
+    .warn-button.alert {
+      animation: blinkRed 0.6s infinite;
+    }
+
+    .center-speed.alert {
+      animation: blinkRedText 0.6s infinite;
+    }
+
+    body.alert-bg {
+      animation: blinkBackgroundRed 0.6s infinite;
+    }
+
+    .app.alert-bg {
+      animation: blinkAppBackgroundRed 0.6s infinite;
+    }
+
+    @keyframes blinkRed {
+      0%, 100% {
+        background: #ff2d2d;
+        color: white;
+        border-color: #ff2d2d;
+      }
+      50% {
+        background: #661111;
+        color: #ffb3b3;
+        border-color: #ff8080;
+      }
+    }
+
+    @keyframes blinkRedText {
+      0%, 100% {
+        color: #ff2d2d;
+        text-shadow: 0 0 18px rgba(255, 0, 0, 0.7);
+      }
+      50% {
+        color: var(--yellow);
+        text-shadow: 0 0 10px rgba(255, 222, 0, 0.4);
+      }
+    }
+
+    @keyframes blinkBackgroundRed {
+      0%, 100% {
+        background:
+          radial-gradient(circle at top, rgba(255, 40, 40, 0.22), transparent 35%),
+          linear-gradient(180deg, #2a0505, #120202);
+      }
+      50% {
+        background:
+          radial-gradient(circle at top, rgba(255, 0, 0, 0.42), transparent 40%),
+          linear-gradient(180deg, #4a0808, #1d0404);
+      }
+    }
+
+    @keyframes blinkAppBackgroundRed {
+      0%, 100% {
+        background: linear-gradient(180deg, rgba(120, 10, 10, 0.96), rgba(50, 0, 0, 0.96));
+        border-color: rgba(255, 70, 70, 0.65);
+      }
+      50% {
+        background: linear-gradient(180deg, rgba(50, 0, 0, 0.96), rgba(20, 0, 0, 0.96));
+        border-color: rgba(255, 120, 120, 0.35);
+      }
+    }
+
+    
+
+    .speed-warning {
+      min-height: 28px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #ff4d4d;
+      margin-bottom: 8px;
+    }
+
+    .panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hint {
+      margin: 12px 0 0;
+      text-align: center;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .warn { color: var(--warn); }
+    .error { color: var(--danger); }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="brand">John Deere</div>
-    <div class="gauge" id="gauge">
-      <div id="needle" class="needle"></div>
-      <div class="center" id="speed">0<br><span class="unit">km/h</span></div>
-    </div>
-    <div class="status" id="status">GPS wird initialisiert...</div>
-    <div class="hint" id="installHint" hidden>Im Browser-Menü kannst du diese Seite zum Startbildschirm hinzufügen.</div>
+  <div class="bg-logo" aria-hidden="true">
+    <svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="210" cy="210" r="180" fill="none" stroke="#ffde00" stroke-width="14" />
+      <path d="M125 262c26-8 47-28 62-60 10-22 24-40 45-52 11-6 22-9 33-10-13 10-23 23-30 39 16 1 30 7 42 18-22 0-39 7-50 22 10 4 19 11 27 20-20-4-37-3-52 4-10 5-19 12-28 19-15 11-31 18-49 20z" fill="#ffde00"/>
+      <path d="M161 121c14 6 24 16 31 31 9-6 18-10 28-13-8 12-12 24-12 38-11-13-25-23-43-31-1-9-2-17-4-25z" fill="#ffde00" opacity="0.9"/>
+    </svg>
   </div>
 
-<script>
-const MAX_KMH = 50;
-const START_ANGLE = -130;
-const END_ANGLE = 130;
-let smoothSpeed = 0;
-let wakeLock = null;
+  <main class="app">
+    <div class="brand">
+      <div class="brand-badge">John Deere</div>
+    </div>
 
-const needle = document.getElementById("needle");
-const speedEl = document.getElementById("speed");
-const statusEl = document.getElementById("status");
-const installHintEl = document.getElementById("installHint");
+    <section class="gauge-wrap">
+      <div class="gauge">
+        <div id="ticks" class="ticks"></div>
+        <div id="needle" class="needle"></div>
+        <div class="needle-cap"></div>
+        <div class="center-readout">
+          <div id="speedDigital" class="center-speed">0</div>
+          <div class="center-unit">km/h</div>
+        </div>
+      </div>
+    </section>
 
-function buildScale(){
-  const gauge = document.getElementById("gauge");
-  for(let i=0;i<=50;i+=5){
-    const angle = START_ANGLE + (i / MAX_KMH) * (END_ANGLE - START_ANGLE);
-    const label = document.createElement("div");
-    label.className = "tick-label";
-    const r = 120;
-    const rad = angle * Math.PI / 180;
-    const x = Math.sin(rad) * r;
-    const y = -Math.cos(rad) * r;
-    label.style.transform = `translate(${x}px,${y}px)`;
-    label.textContent = i;
-    gauge.appendChild(label);
-  }
-}
-buildScale();
+    <div class="max-note">Skala 0–50 km/h</div>
+    <div id="status" class="status">GPS wird initialisiert...</div>
+    <button id="warn25Btn" class="warn-button">Warnung 25 km/h</button>
+    <button id="testToneBtn" class="warn-button">Warnton testen</button>
+    <div id="speedWarning" class="speed-warning"></div>
 
-function setStatus(text, cls=''){
-  statusEl.textContent = text;
-  statusEl.className = 'status ' + cls;
-}
+    <section class="panel">
+      <div class="card">
+        <div class="label">GPS-Status</div>
+        <div id="gpsState" class="value">Inaktiv</div>
+      </div>
+      <div class="card">
+        <div class="label">Genauigkeit</div>
+        <div id="accuracy" class="value">-</div>
+      </div>
+    </section>
 
-function toKmh(ms){ return Math.max(0, ms * 3.6); }
+    
 
-function updateGauge(kmh){
-  const shown = Math.min(MAX_KMH, Math.max(0, kmh));
-  const angle = START_ANGLE + (shown / MAX_KMH) * (END_ANGLE - START_ANGLE);
-  needle.style.transform = `rotate(${angle}deg)`;
-  speedEl.innerHTML = Math.round(shown) + "<br><span class='unit'>km/h</span>";
-}
+    <p class="hint">
+      GPS einschalten und möglichst im Freien nutzen. Werte über 50 km/h werden auf der Anzeige bei 50 begrenzt.
+    </p>
+  </main>
 
-function handlePosition(pos){
-  let kmh = 0;
-  if (typeof pos.coords.speed === "number" && pos.coords.speed >= 0) {
-    kmh = toKmh(pos.coords.speed);
-  }
-  smoothSpeed = smoothSpeed * 0.3 + kmh * 0.7;
-  updateGauge(smoothSpeed);
-  setStatus("GPS aktiv");
-}
+  <script>
+    const speedDigitalEl = document.getElementById('speedDigital');
+    const statusEl = document.getElementById('status');
+    const accuracyEl = document.getElementById('accuracy');
+    const gpsStateEl = document.getElementById('gpsState');
+    const warn25Btn = document.getElementById('warn25Btn');
+    const testToneBtn = document.getElementById('testToneBtn');
+    const speedWarningEl = document.getElementById('speedWarning');
+    const appEl = document.querySelector('.app');
+    
+    const needleEl = document.getElementById('needle');
+    const ticksEl = document.getElementById('ticks');
 
-function handleError(err){
-  if (err && err.code === 1) setStatus("Standortzugriff abgelehnt", "error");
-  else setStatus("GPS nicht verfügbar", "error");
-}
+    const MAX_KMH = 50;
+    const START_ANGLE = -130;
+    const END_ANGLE = 130;
 
-function startGps(){
-  if (!("geolocation" in navigator)) {
-    setStatus("Geolocation nicht unterstützt", "error");
-    return;
-  }
-  navigator.geolocation.watchPosition(
-    handlePosition,
-    handleError,
-    { enableHighAccuracy:true, maximumAge:1000, timeout:10000 }
-  );
-}
+    let watchId = null;
+    let lastPosition = null;
+    let smoothSpeed = 0; // gedämpfte Geschwindigkeit
+    let warn25Active = false;
+    let lastBeep = 0;
 
-async function enableWakeLock(){
-  if ('wakeLock' in navigator) {
-    try { wakeLock = await navigator.wakeLock.request('screen'); }
-    catch(e) {}
-  }
-}
+    function buildTicks() {
+      for (let i = 0; i <= 50; i += 5) {
+        const angle = START_ANGLE + (i / MAX_KMH) * (END_ANGLE - START_ANGLE);
 
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") enableWakeLock();
-});
+        const label = document.createElement('div');
+        label.className = 'tick-label';
+        const radius = 118;
+        const rad = angle * Math.PI / 180;
+        const x = Math.sin(rad) * radius;
+        const y = -Math.cos(rad) * radius;
+        label.style.transform = `translate(${x}px, ${y}px)`;
+        label.textContent = i;
+        ticksEl.appendChild(label);
+      }
+    }
 
-window.addEventListener("load", () => {
-  startGps();
-  enableWakeLock();
-  if (window.matchMedia('(display-mode: browser)').matches) {
-    installHintEl.hidden = false;
-  }
-});
+    buildTicks();
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-}
-</script>
+    function toKmh(ms) {
+      return Math.max(0, ms * 3.6);
+    }
+
+    function haversineMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = deg => deg * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function updateStatus(text, cls = '') {
+      statusEl.textContent = text;
+      statusEl.className = `status ${cls}`.trim();
+    }
+
+    function clampSpeed(kmh) {
+      return Math.min(MAX_KMH, Math.max(0, kmh));
+    }
+
+    function updateGauge(kmh) {
+      const shown = clampSpeed(kmh);
+      const angle = START_ANGLE + (shown / MAX_KMH) * (END_ANGLE - START_ANGLE);
+      needleEl.style.transform = `rotate(${angle}deg)`;
+      speedDigitalEl.textContent = Math.round(shown).toString();
+
+      if (warn25Active && kmh >= 25) {
+        speedWarningEl.textContent = '⚠ Über 25 km/h';
+        warn25Btn.classList.add('alert');
+        speedDigitalEl.classList.add('alert');
+        document.body.classList.add('alert-bg');
+        appEl.classList.add('alert-bg');
+        playWarningTone();
+      } else {
+        speedWarningEl.textContent = '';
+        warn25Btn.classList.remove('alert');
+        speedDigitalEl.classList.remove('alert');
+        document.body.classList.remove('alert-bg');
+        appEl.classList.remove('alert-bg');
+      }
+    }
+
+        function handlePosition(position) {
+      const { latitude, longitude, accuracy, speed } = position.coords;
+      const timestamp = position.timestamp;
+      let kmh = 0;
+
+      if (typeof speed === 'number' && !Number.isNaN(speed) && speed >= 0) {
+        kmh = toKmh(speed);
+      } else if (lastPosition) {
+        const dist = haversineMeters(
+          lastPosition.coords.latitude,
+          lastPosition.coords.longitude,
+          latitude,
+          longitude
+        );
+        const seconds = (timestamp - lastPosition.timestamp) / 1000;
+        if (seconds > 0) {
+          kmh = toKmh(dist / seconds);
+        }
+      }
+
+      // einfache Dämpfung (Low-Pass-Filter)
+      smoothSpeed = smoothSpeed * 0.8 + kmh * 0.2;
+      updateGauge(smoothSpeed);
+      accuracyEl.textContent = accuracy ? `${Math.round(accuracy)} m` : '-';
+      gpsStateEl.textContent = 'Aktiv';
+
+      if (accuracy && accuracy > 50) {
+        updateStatus('GPS-Signal schwach – Anzeige kann ungenau sein.', 'warn');
+      } else if (kmh > MAX_KMH) {
+        updateStatus('Geschwindigkeit über 50 km/h – Anzeige bleibt bei 50.', 'warn');
+      } else {
+        updateStatus('GPS aktiv. Geschwindigkeit wird aktualisiert.');
+      }
+
+      lastPosition = position;
+    }
+
+    function playWarningTone(force = false) {
+      const now = Date.now();
+      if (!force && now - lastBeep < 1200) return;
+      lastBeep = now;
+
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function beep(start) {
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          oscillator.type = 'square';
+          oscillator.frequency.setValueAtTime(1450, audioCtx.currentTime + start);
+
+          gainNode.gain.setValueAtTime(0.001, audioCtx.currentTime + start);
+          gainNode.gain.linearRampToValueAtTime(0.38, audioCtx.currentTime + start + 0.01);
+          gainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + start + 0.16);
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          oscillator.start(audioCtx.currentTime + start);
+          oscillator.stop(audioCtx.currentTime + start + 0.16);
+        }
+
+        // vierfach OEM-artiger Traktor-Warnton
+        // PIEEP PIEEP PIEEP PIEEP
+        beep(0.00);
+        beep(0.28);
+        beep(0.56);
+        beep(0.84);
+
+      } catch (e) {}
+    }
+
+    function handleError(error) {
+      gpsStateEl.textContent = 'Fehler';
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          updateStatus('Standortzugriff wurde abgelehnt.', 'error');
+          break;
+        case error.POSITION_UNAVAILABLE:
+          updateStatus('Standort momentan nicht verfügbar.', 'error');
+          break;
+        case error.TIMEOUT:
+          updateStatus('Zeitüberschreitung beim GPS.', 'error');
+          break;
+        default:
+          updateStatus('Unbekannter GPS-Fehler.', 'error');
+      }
+    }
+
+    function startTracking() {
+      if (!('geolocation' in navigator)) {
+        updateStatus('Geolocation wird auf diesem Gerät nicht unterstützt.', 'error');
+        return;
+      }
+
+      if (watchId !== null) {
+        updateStatus('GPS läuft bereits.');
+        return;
+      }
+
+      lastPosition = null;
+      gpsStateEl.textContent = 'Suche...';
+      updateStatus('GPS wird gestartet...');
+
+      watchId = navigator.geolocation.watchPosition(handlePosition, handleError, {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 10000
+      });
+    }
+
+        async function enableWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          const wakeLock = await navigator.wakeLock.request('screen');
+          updateStatus('GPS aktiv. Bildschirm bleibt an.');
+
+          wakeLock.addEventListener('release', () => {
+            updateStatus('Wake Lock wurde beendet.');
+          });
+        } catch (err) {
+          updateStatus('Wake Lock nicht möglich.', 'warn');
+        }
+      } else {
+        updateStatus('Wake Lock wird vom Browser nicht unterstützt.', 'warn');
+      }
+    }
+
+    testToneBtn.addEventListener('click', () => {
+      warn25Btn.classList.add('alert');
+      speedDigitalEl.classList.add('alert');
+      document.body.classList.add('alert-bg');
+        appEl.classList.add('alert-bg');
+      speedWarningEl.textContent = '⚠ Warnton Test';
+
+      playWarningTone(true);
+
+      setTimeout(() => {
+        warn25Btn.classList.remove('alert');
+        speedDigitalEl.classList.remove('alert');
+        document.body.classList.remove('alert-bg');
+        appEl.classList.remove('alert-bg');
+        speedWarningEl.textContent = '';
+      }, 2600);
+    });
+
+    warn25Btn.addEventListener('click', () => {
+      warn25Active = !warn25Active;
+      warn25Btn.classList.toggle('active', warn25Active);
+      warn25Btn.textContent = warn25Active ? '25 km/h Warnung AN' : 'Warnung 25 km/h';
+
+      if (!warn25Active) {
+        speedWarningEl.textContent = '';
+        warn25Btn.classList.remove('alert');
+        speedDigitalEl.classList.remove('alert');
+        document.body.classList.remove('alert-bg');
+        appEl.classList.remove('alert-bg');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateGauge(0);
+      startTracking();
+      enableWakeLock();
+    });
+  </script>
 </body>
 </html>
