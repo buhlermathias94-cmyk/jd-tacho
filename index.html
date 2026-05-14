@@ -496,7 +496,7 @@
       }
 
       // einfache Dämpfung (Low-Pass-Filter)
-      smoothSpeed = smoothSpeed * 0.8 + kmh * 0.2;
+      smoothSpeed = smoothSpeed * 0.2 + kmh * 0.8;
       updateGauge(smoothSpeed);
       accuracyEl.textContent = accuracy ? `${Math.round(accuracy)} m` : '-';
       gpsStateEl.textContent = 'Aktiv';
