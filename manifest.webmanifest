@@ -4,7 +4,7 @@
   "description": "GPS-Tacho bis 50 km/h für Android",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#122716",
   "theme_color": "#122716",
   "orientation": "portrait",
