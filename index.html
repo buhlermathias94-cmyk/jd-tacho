@@ -767,7 +767,7 @@
 
         updateGnssButton();
 
-        window.open('android-app://com.gnssmaster');
+        window.location.href = 'intent://open#Intent;scheme=gnssmaster;package=com.gnssmaster;end';
       } catch (e) {
         alert('GNSS Master konnte nicht geöffnet werden.');
       }
