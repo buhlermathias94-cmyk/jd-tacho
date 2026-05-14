@@ -1,4 +1,4 @@
-const CACHE = 'jd-tacho-v10';
+const CACHE = 'jd-tacho-v12';
 
 self.addEventListener('install', e => {
   e.waitUntil(
