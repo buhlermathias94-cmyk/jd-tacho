@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#122716">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="manifest" href="./manifest.webmanifest" type="application/manifest+json">
   <title>GPS Tacho John Deere Style</title>
   <style>
     :root {
@@ -359,6 +359,16 @@
       border-color: #56d46f;
     }
 
+    .clock-display {
+      text-align: center;
+      margin-top: 6px;
+      color: var(--yellow);
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
     .test-button-circle {
       position: absolute;
       top: 14px;
@@ -433,7 +443,7 @@
 
   <main class="app">
     <div class="brand">
-      <div class="brand-badge">John Deere</div>
+      <div id="topClock" class="brand-badge">--:--</div>
     </div>
 
     <section class="gauge-wrap">
@@ -477,6 +487,7 @@
   <script>
     const speedDigitalEl = document.getElementById('speedDigital');
     const statusEl = document.getElementById('status');
+    const topClockEl = document.getElementById('topClock');
     const accuracyEl = document.getElementById('accuracy');
     const gpsStateEl = document.getElementById('gpsState');
     const warn25Btn = document.getElementById('warn25Btn');
@@ -501,6 +512,18 @@
     let smoothSpeed = 0; // gedämpfte Geschwindigkeit
     let warn25Active = false;
     let lastBeep = 0;
+
+    function updateClock() {
+      const now = new Date();
+      const timeText = now.toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      topClockEl.textContent = timeText;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
 
     function buildTicks() {
       for (let i = 0; i <= 50; i += 5) {
@@ -744,7 +767,7 @@
 
         updateGnssButton();
 
-        window.location.href = 'intent://#Intent;package=com.gnssmaster;end';
+        window.open('android-app://com.gnssmaster');
       } catch (e) {
         alert('GNSS Master konnte nicht geöffnet werden.');
       }
