@@ -1,4 +1,4 @@
-const CACHE = 'jd-tacho-v9';
+const CACHE = 'jd-tacho-v10';
 const ASSETS = ['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
