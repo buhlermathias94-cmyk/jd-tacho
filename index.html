@@ -209,6 +209,7 @@
     }
 
     .warn-button {
+      position: relative;
       display: block;
       margin: 10px auto 8px;
       padding: 12px 18px;
@@ -218,11 +219,40 @@
       color: var(--yellow);
       font-weight: 900;
       font-size: 1rem;
+      transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .warn-button:active {
+      background: rgba(255, 222, 0, 0.32);
+      box-shadow: 0 0 18px rgba(255, 222, 0, 0.45);
+      transform: scale(0.97);
     }
 
     .warn-button.active {
       background: var(--yellow);
       color: #122716;
+    }
+
+    .warn-button.rtk-fix {
+      background: #2fb34a;
+      border-color: #56d46f;
+      color: white;
+      box-shadow: 0 0 18px rgba(47, 179, 74, 0.45);
+    }
+
+    .warn-button.rtk-float {
+      background: #d6a700;
+      border-color: #ffde00;
+      color: #1a1a1a;
+      box-shadow: 0 0 18px rgba(255, 222, 0, 0.4);
+    }
+
+    .warn-button.rtk-none {
+      background: #8a1414;
+      border-color: #ff4d4d;
+      color: white;
+      box-shadow: 0 0 18px rgba(255, 0, 0, 0.35);
     }
 
     .warn-button.alert {
@@ -290,6 +320,56 @@
     }
 
     
+
+    .mode-circle {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: white;
+      border: 2px solid rgba(255,255,255,0.16);
+      box-shadow: 0 0 18px rgba(0,0,0,0.35);
+      z-index: 20;
+    }
+
+    .mode-circle.mobile {
+      background: #1f4f8f;
+      border-color: #5aa7ff;
+    }
+
+    .mode-circle.float {
+      background: #d6a700;
+      border-color: #ffde00;
+      color: #1a1a1a;
+    }
+
+    .mode-circle.fix {
+      background: #2fb34a;
+      border-color: #56d46f;
+    }
+
+    .test-button-circle {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 900;
+      z-index: 20;
+    }
 
     .speed-warning {
       min-height: 28px;
@@ -366,8 +446,10 @@
 
     <div class="max-note">Skala 0–50 km/h</div>
     <div id="status" class="status">GPS wird initialisiert...</div>
+    <div id="modeCircle" class="mode-circle mobile">M</div>
     <button id="warn25Btn" class="warn-button">Warnung 25 km/h</button>
-    <button id="testToneBtn" class="warn-button">Warnton testen</button>
+    <button id="testToneBtn" class="warn-button test-button-circle">TEST</button>
+    <button id="gnssBtn" class="warn-button">GNSS Master</button>
     <div id="speedWarning" class="speed-warning"></div>
 
     <section class="panel">
@@ -395,6 +477,11 @@
     const gpsStateEl = document.getElementById('gpsState');
     const warn25Btn = document.getElementById('warn25Btn');
     const testToneBtn = document.getElementById('testToneBtn');
+    const gnssBtn = document.getElementById('gnssBtn');
+    const modeCircle = document.getElementById('modeCircle');
+
+    // RTK Status Simulation
+    let rtkState = 'none';
     const speedWarningEl = document.getElementById('speedWarning');
     const appEl = document.querySelector('.app');
     
@@ -622,6 +709,43 @@
       }, 2600);
     });
 
+    function updateGnssButton() {
+      gnssBtn.classList.remove('rtk-fix', 'rtk-float', 'rtk-none');
+      modeCircle.classList.remove('mobile', 'float', 'fix');
+      if (rtkState === 'fix') {
+        gnssBtn.classList.add('rtk-fix');
+        modeCircle.classList.add('fix');
+        modeCircle.textContent = 'RTK';
+      } else if (rtkState === 'float') {
+        gnssBtn.classList.add('rtk-float');
+        modeCircle.classList.add('float');
+        modeCircle.textContent = 'FLT';
+      } else {
+        gnssBtn.classList.add('rtk-none');
+        modeCircle.classList.add('mobile');
+        modeCircle.textContent = 'M';
+      }
+    }
+
+    gnssBtn.addEventListener('click', () => {
+      try {
+        // Demo-Zyklus FIX -> FLOAT -> NONE
+        if (rtkState === 'none') {
+          rtkState = 'float';
+        } else if (rtkState === 'float') {
+          rtkState = 'fix';
+        } else {
+          rtkState = 'none';
+        }
+
+        updateGnssButton();
+
+        window.location.href = 'intent://#Intent;package=com.gnssmaster;end';
+      } catch (e) {
+        alert('GNSS Master konnte nicht geöffnet werden.');
+      }
+    });
+
     warn25Btn.addEventListener('click', () => {
       warn25Active = !warn25Active;
       warn25Btn.classList.toggle('active', warn25Active);
@@ -637,6 +761,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+      updateGnssButton();
       updateGauge(0);
       startTracking();
       enableWakeLock();
