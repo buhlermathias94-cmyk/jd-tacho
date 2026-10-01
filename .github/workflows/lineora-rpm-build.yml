@@ -75,6 +75,16 @@ jobs:
             echo "Source archive SHA256: 8d0a17dd6851c8e711cabf98b09aef14bc11f433d5aeaecb0e97654643425622"
           } > .ci/lineora-rpm/output/BUILD_INFO.txt
 
+      - name: Upload OTA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LINEORA-RPM-ESP32-S3-v1.1.0-Entprellt-OTA
+          path: |
+            .ci/lineora-rpm/output/LINEORA-RPM-ESP32-S3-v1.1.0-Entprellt-OTA.bin
+            .ci/lineora-rpm/output/SHA256SUMS.txt
+            .ci/lineora-rpm/output/BUILD_INFO.txt
+          if-no-files-found: error
+
       - name: Commit OTA result to temporary branch
         shell: bash
         run: |
