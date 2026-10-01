@@ -1,0 +1,4 @@
+Firmware: LINEORA RPM v1.1.0 Entprellt
+Target: ESP32-S3 N16R8
+Arduino-ESP32 core: 3.3.11
+Source archive SHA256: 8d0a17dd6851c8e711cabf98b09aef14bc11f433d5aeaecb0e97654643425622
